@@ -1,0 +1,59 @@
+fun main() {
+    fun part1(input: List<String>): Int {
+        val numbers = input[0].split(",")
+        val boards = input.slice(2 until input.size)
+            .chunked(6)
+            .map { it.take(5) }
+            .map { board -> board.map { row -> row.chunked(3) .map { it.trim() } } }
+
+        val transposedBoards: MutableList<List<List<String>>> = mutableListOf()
+
+        for (board in boards) {
+            var rows: MutableList<List<String>> = mutableListOf()
+            for (i in 0..4) {
+                val row: MutableList<String> = mutableListOf()
+                for (j in 0..4) {
+                    row += board[j][i]
+                }
+                rows += row
+            }
+            transposedBoards += rows
+        }
+
+        var winningBoard = -1
+        var winningNumberIndex = -1
+        outer@ for (i in 4 until numbers.size) {
+            val calledNumbers = numbers.slice(0..i)
+
+            for (board in boards.indices) {
+                for (row in boards[board].indices) {
+                    if (calledNumbers.containsAll(boards[board][row]) ||
+                        calledNumbers.containsAll(transposedBoards[board][row])) {
+                        winningBoard = board
+                        winningNumberIndex = i
+                        break@outer
+                    }
+                }
+            }
+        }
+
+        val numbersOnWinningBoard = boards[winningBoard].flatten()
+        val unmarkedNumbers = numbersOnWinningBoard
+            .filterNot { numbers.slice(0..winningNumberIndex).contains(it) }
+
+        return numbers[winningNumberIndex].toInt() * unmarkedNumbers.sumOf { it.toInt() }
+    }
+
+    fun part2(input: List<String>): Int {
+        return input.size
+    }
+
+    // test if implementation meets criteria from the description, like:
+    val testInput = readInput("Day04_test")
+    check(part1(testInput) == 4512)
+//    check(part2(testInput) == 5)
+
+    val input = readInput("Day04")
+    println("part1 ${part1(input)}")
+    println("part2 ${part2(input)}")
+}
