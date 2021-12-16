@@ -9,15 +9,15 @@ fun main() {
         val transposedBoards: MutableList<List<List<String>>> = mutableListOf()
 
         for (board in boards) {
-            var rows: MutableList<List<String>> = mutableListOf()
+            var newBoard: MutableList<List<String>> = mutableListOf()
             for (i in 0..4) {
                 val row: MutableList<String> = mutableListOf()
                 for (j in 0..4) {
                     row += board[j][i]
                 }
-                rows += row
+                newBoard += row
             }
-            transposedBoards += rows
+            transposedBoards += newBoard
         }
 
         var winningBoard = -1
