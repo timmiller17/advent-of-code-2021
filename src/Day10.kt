@@ -77,7 +77,7 @@ fun scoreForPart1(closingCharacter: String): Int {
     }
 }
 
-fun evaluateLine(line: List<String>): Pair<Boolean, String> {
+fun evaluateLine(line: List<String>): LineProperties {
     var stack = ""
     for (position in line.indices) {
         val charAtPosition = line[position]
@@ -86,29 +86,29 @@ fun evaluateLine(line: List<String>): Pair<Boolean, String> {
             ")" -> if (stack.last() == '(') {
                 stack = stack.dropLast(1)
             } else {
-                return Pair(true, "")
+                return LineProperties(isCorrupt = true, completionString = "")
             }
             "[" -> stack += "["
             "]" -> if (stack.last() == '[') {
                 stack = stack.dropLast(1)
             } else {
-                return Pair(true, "")
+                return LineProperties(isCorrupt = true, completionString = "")
             }
             "{" -> stack += "{"
             "}" -> if (stack.last() == '{') {
                 stack = stack.dropLast(1)
             } else {
-                return Pair(true, "")
+                return LineProperties(isCorrupt = true, completionString = "")
             }
             "<" -> stack += "<"
             ">" -> if (stack.last() == '<') {
                 stack = stack.dropLast(1)
             } else {
-                return Pair(true, "")
+                return LineProperties(isCorrupt = true, completionString = "")
             }
         }
     }
-    return Pair(false, stack.toCompletionString())
+    return LineProperties(isCorrupt = false, completionString = stack.toCompletionString())
 }
 
 fun scoreForPart2(completionString: String): Long {
@@ -141,3 +141,5 @@ fun String.toCompletionString(): String {
     }
     return mirrored
 }
+
+data class LineProperties(val isCorrupt: Boolean, val completionString: String)
