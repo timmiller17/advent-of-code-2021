@@ -78,20 +78,18 @@ fun main() {
                         workingBasinPoints.remove(point)
                         basinPointHeight = heightMap[point.first][point.second]
                         if (leftPositionInBasin(point.first, point.second, basinPointHeight, heightMap)) {
-                            basinPoints += Pair(point.first, point.second - 1)
+                            workingBasinPoints += Pair(point.first, point.second - 1)
                         }
                         if (rightPositionInBasin(point.first, point.second, basinPointHeight, heightMap)) {
-                            basinPoints += Pair(point.first, point.second + 1)
+                            workingBasinPoints += Pair(point.first, point.second + 1)
                         }
                         if (topPositionInBasin(point.first, point.second, basinPointHeight, heightMap)) {
-                            basinPoints += Pair(point.first - 1, point.second)
+                            workingBasinPoints += Pair(point.first - 1, point.second)
                         }
                         if (bottomPositionInBasin(point.first, point.second, basinPointHeight, heightMap)) {
-                            basinPoints += Pair(point.first + 1, point.second)
+                            workingBasinPoints += Pair(point.first + 1, point.second)
                         }
-                        workingBasinPoints.addAll(basinPoints)
-                        totalBasinPoints.addAll(basinPoints)
-                        basinPoints.clear()
+                        totalBasinPoints.addAll(workingBasinPoints)
                     }
 
                     basinSizes += totalBasinPoints.size
