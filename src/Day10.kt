@@ -48,9 +48,7 @@ fun main() {
         val lines = input.map { it.chunked(1) }
 
         for (line in lines) {
-            val lineDetails = evaluateLine(line)
-            val isLineCorrupt = lineDetails.first
-            val completionString = lineDetails.second
+            val( isLineCorrupt, completionString) = evaluateLine(line)
             if (isLineCorrupt.not()) {
                 scores += scoreForPart2(completionString)
             }
