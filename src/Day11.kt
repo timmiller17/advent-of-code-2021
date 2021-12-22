@@ -40,13 +40,57 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        // do same as part1 but add an all flashed flag set to true (before outer loop probably, which will be a while now))
+        // in count flashes portion, add else block to set it to false if any octopus did not flash
+        // also will need a count to increment and then return if all flashed is true after loop step
+        val octopi = input.map { it.chunked(1) .map { it.toInt() }.toMutableList() }
+
+        var step = 0
+        var allFlashed = false
+        while (!allFlashed) {
+            step++
+            allFlashed = true
+            val flashedOctopi = mutableSetOf<Pair<Int, Int>>()
+            // initial energy level increase
+            for (i in 0..9) {
+                for (j in 0..9) {
+                    val energyLevel = ++octopi[i][j]
+                    if (energyLevel == 10) {
+                        flashedOctopi += Pair(i, j)
+                    }
+                }
+            }
+            // energy level increase due to flashes
+            while (flashedOctopi.isNotEmpty()) {
+                val newlyFlashedOctopi = mutableSetOf<Pair<Int, Int>>()
+                for (octopus in flashedOctopi) {
+                    newlyFlashedOctopi.addAll(addEnergyToNeighbors(octopus, octopi))
+                }
+                flashedOctopi.clear()
+                flashedOctopi.addAll(newlyFlashedOctopi)
+            }
+
+            // count flashes and reset flashed octopi to zero energy
+            for (i in 0..9) {
+                for (j in 0..9) {
+                    val energyLevel = octopi[i][j]
+                    if (energyLevel > 9) {
+                        octopi[i][j] = 0
+                    } else {
+                        allFlashed = false
+                    }
+                }
+            }
+
+        }
+
+        return step
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day11_test")
     check(part1(testInput) == 1656)
-//    check(part2(testInput) == 5)
+    check(part2(testInput) == 195)
 
     val input = readInput("Day11")
     println("part1 ${part1(input)}")
