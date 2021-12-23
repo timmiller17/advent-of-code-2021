@@ -28,8 +28,34 @@ fun main() {
         return temp.maxOf { it.size } - temp.minOf { it.size }
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    // takes too long, also answer does not fit in an Int
+    fun part2firstTry(input: List<String>): Int {
+        var polymerTemplate = input[0].chunked(1).toMutableList()
+        val pairInsertionRules = input.dropWhile { it.contains("->").not() }
+
+        val insertionRuleMap = mutableMapOf<String, String>()
+        for (rule in pairInsertionRules) {
+            insertionRuleMap += rule.take(2) to rule.last().toString()
+        }
+
+        for (step in 1..40) {
+            val valuesToInsert = polymerTemplate.zipWithNext { a, b ->
+                insertionRuleMap[arrayListOf(
+                    a,
+                    b
+                ).joinToString("")]
+            }
+
+            val result = polymerTemplate.zip(valuesToInsert).flatMap { listOf(it.first, it.second!!) }.toMutableList()
+            result += polymerTemplate.last().toString()
+
+            polymerTemplate.clear()
+            polymerTemplate.addAll(result)
+        }
+
+        val temp = polymerTemplate.groupBy { it }.values
+
+        return temp.maxOf { it.size } - temp.minOf { it.size }
     }
 
     // test if implementation meets criteria from the description, like:
