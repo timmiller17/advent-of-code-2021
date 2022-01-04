@@ -58,9 +58,6 @@ fun main() {
         for (step in 1..40) {
             val pairCountSnapshot: Map<String, Long> = HashMap(pairCountMap)
 
-            // for debug
-            val polymerLength = countingMap.values.sum()
-
             for (key in pairCountSnapshot.keys) {
                 if (pairCountSnapshot[key]!! > 0) {
 
@@ -72,10 +69,10 @@ fun main() {
                     pairCountMap[secondNewPair] = pairCountMap[secondNewPair]!! + pairCountSnapshot[key]!!
 
                     countingMap[newPolymer] = countingMap[newPolymer]!! + pairCountSnapshot[key]!!
+
+                    pairCountMap[key] = pairCountMap[key]!! - pairCountSnapshot[key]!!
+
                 }
-            }
-            for (key in pairCountSnapshot.keys) {
-                pairCountMap[key] = pairCountMap[key]!! - pairCountSnapshot[key]!!
             }
         }
 
