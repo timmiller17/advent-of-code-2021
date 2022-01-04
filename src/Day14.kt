@@ -28,6 +28,62 @@ fun main() {
         return temp.maxOf { it.size } - temp.minOf { it.size }
     }
 
+    fun part2(input: List<String>): Long {
+        var polymerTemplate = input[0].chunked(1).toMutableList()
+        val pairInsertionRules = input.dropWhile { it.contains("->").not() }
+
+        val insertionRuleMap = mutableMapOf<String, String>()
+        for (rule in pairInsertionRules) {
+            insertionRuleMap += rule.take(2) to rule.last().toString()
+        }
+
+        val countingMap = mutableMapOf<String, Long>()
+        for (string in insertionRuleMap.values.distinct()) {
+            countingMap += Pair(string, 0L)
+        }
+
+        // initialize countingMap with values in polymer template
+        polymerTemplate.forEach { countingMap[it] = countingMap[it]!! + 1 }
+
+        val pairCountMap = mutableMapOf<String, Long>()
+        for (key in insertionRuleMap.keys) {
+            pairCountMap += Pair(key, 0L)
+        }
+
+        // initialize pairCountMap with pairs in polymer template
+        for (pair in polymerTemplate.windowed(2).map { it.joinToString("") }) {
+            pairCountMap[pair] = pairCountMap[pair]!! + 1
+        }
+
+        for (step in 1..40) {
+            val pairCountSnapshot: Map<String, Long> = HashMap(pairCountMap)
+
+            // for debug
+            val polymerLength = countingMap.values.sum()
+
+            for (key in pairCountSnapshot.keys) {
+                if (pairCountSnapshot[key]!! > 0) {
+
+                    val newPolymer = insertionRuleMap[key]!!
+                    val firstNewPair = "${key.first()}$newPolymer"
+                    val secondNewPair = "$newPolymer${key.last()}"
+
+                    pairCountMap[firstNewPair] = pairCountMap[firstNewPair]!! + pairCountSnapshot[key]!!
+                    pairCountMap[secondNewPair] = pairCountMap[secondNewPair]!! + pairCountSnapshot[key]!!
+
+                    countingMap[newPolymer] = countingMap[newPolymer]!! + pairCountSnapshot[key]!!
+                }
+            }
+            for (key in pairCountSnapshot.keys) {
+                pairCountMap[key] = pairCountMap[key]!! - pairCountSnapshot[key]!!
+            }
+        }
+
+        return countingMap.values.maxOf { it } - countingMap.values.minOf { it }
+    }
+
+
+
     // faster than first try, and can handle large counts, but not fast enough!
     fun part2secondTry(input: List<String>): Long {
         var polymerTemplate = input[0].chunked(1).toMutableList()
