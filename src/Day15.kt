@@ -102,38 +102,54 @@ fun main() {
             }
         }
 
-//        val temp = mutableListOf(1,2,3,4,5,6,7,8,9)
-//
-//        val temp1 = temp.map { it.raiseRisk() }
-//
-//        repeat(4) {
-//            temp += temp.takeLast(9).map { it.raiseRisk() }
-//        }
-//
-//        val frog = mutableListOf(
-//            mutableListOf(1),
-//            mutableListOf(2),
-//            mutableListOf(3),
-//            mutableListOf(4),
-//            mutableListOf(5),
-//            mutableListOf(6),
-//            mutableListOf(7),
-//            mutableListOf(8),
-//            mutableListOf(9),
-//        )
-//
-//        repeat(4) {
-//            val tadpole = frog.takeLast(9)
-//            for (row in 0..8) {
-//                frog += tadpole[row].map { it.raiseRisk() }.toMutableList()
-//            }
-//        }
-//
-//        for (row in 0..8) {
-//            frog += frog[row].map { it.raiseRisk() }.toMutableList()
-//        }
+        val distances = mutableListOf<MutableList<Int>>()
+        val previousNodes = mutableListOf<MutableList<Pair<Int, Int>?>>()
 
-        return input.size
+        for (list in cave) {
+            distances += mutableListOf(list.map { Int.MAX_VALUE }.toMutableList())
+            previousNodes += mutableListOf(list.map { null }.toMutableList())
+        }
+        distances[0][0] = 0
+
+        val unvisitedSet = mutableSetOf<Node>()
+
+        for (i in cave.indices) {
+            for (j in cave[0].indices) {
+                unvisitedSet += if (i == 0 && j == 0) {
+                    Node(Pair(i,j), 0)
+                } else {
+                    Node(Pair(i,j))
+                }
+            }
+        }
+
+        while (unvisitedSet.isNotEmpty()) {
+            val currentNode = unvisitedSet.minByOrNull { it.distance }!!  // this is just progressing top down through the graph, maybe need to consider all points in chart not visited yet and then take min of those
+            unvisitedSet.remove(currentNode)
+
+            val location = currentNode.location
+
+            val neighbors = getNeighbors(location, cave.size, cave[0].size)  // get potential neighbors
+            neighbors.removeAll { unvisitedSet.map { node -> node.location }.contains(it).not() } // remove neighbors already visited
+
+            for (neighbor in neighbors) {
+                val distance = distances[location.first][location.second] + getDistance(location, neighbor, cave)
+
+                if (distance < distances[neighbor.first][neighbor.second]) {
+                    distances[neighbor.first][neighbor.second] = distance
+                    previousNodes[neighbor.first][neighbor.second] = location
+                }
+            }
+        }
+
+        val lowestRiskPath = mutableListOf(Pair(cave.size - 1, cave[0].size - 1))
+        var previousNode = previousNodes[cave.size - 1][cave[0].size - 1]
+        while (previousNode != Pair(0, 0)) {
+            lowestRiskPath += previousNode!!
+            previousNode = previousNodes[previousNode!!.first][previousNode!!.second]
+        }
+
+        return lowestRiskPath.sumOf { cave[it.first][it.second] }
     }
 
     // test if implementation meets criteria from the description, like:
@@ -141,11 +157,12 @@ fun main() {
     val testInput = readInput("Day15_test")
 //    check(part0(testInput0) == 20)
 //    check(part1(testInput) == 40)
-    check(part2(testInput) == 5)
+    check(part2(testInput) == 315)
+    println("part2 test succeeded")
 
     val input = readInput("Day15")
 //    println("part1 ${part1(input)}")
-//    println("part2 ${part2(input)}")
+    println("part2 ${part2(input)}")
 }
 
 data class Node(
