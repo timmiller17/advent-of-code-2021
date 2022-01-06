@@ -53,7 +53,7 @@ fun main() {
         }
 
         while (unvisitedSet.isNotEmpty()) {
-            val currentNode = unvisitedSet.minByOrNull { it.distance }!!
+            val currentNode = unvisitedSet.minByOrNull { it.distance }!!  // this is just progressing top down through the graph, maybe need to consider all points in chart not visited yet and then take min of those
             unvisitedSet.remove(currentNode)
 
             val location = currentNode.location
@@ -82,18 +82,69 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
+        val cave = input.map { it.chunked(1).map { it.toInt() }.toMutableList() }.toMutableList()
+
+        val caveSectionRows = cave.size
+        val caveSectionColumns = cave[0].size
+
+        // expand cave down 4 times
+        repeat(4) {
+            val aboveCaveSection = cave.takeLast(caveSectionRows)
+            for (row in 0 until caveSectionRows) {
+                cave += aboveCaveSection[row].map { it.raiseRisk() }.toMutableList()
+            }
+        }
+
+        // expand cave right 4 times
+        repeat(4) {
+            for (row in cave) {
+                row += row.takeLast(caveSectionColumns).map { it.raiseRisk() }
+            }
+        }
+
+//        val temp = mutableListOf(1,2,3,4,5,6,7,8,9)
+//
+//        val temp1 = temp.map { it.raiseRisk() }
+//
+//        repeat(4) {
+//            temp += temp.takeLast(9).map { it.raiseRisk() }
+//        }
+//
+//        val frog = mutableListOf(
+//            mutableListOf(1),
+//            mutableListOf(2),
+//            mutableListOf(3),
+//            mutableListOf(4),
+//            mutableListOf(5),
+//            mutableListOf(6),
+//            mutableListOf(7),
+//            mutableListOf(8),
+//            mutableListOf(9),
+//        )
+//
+//        repeat(4) {
+//            val tadpole = frog.takeLast(9)
+//            for (row in 0..8) {
+//                frog += tadpole[row].map { it.raiseRisk() }.toMutableList()
+//            }
+//        }
+//
+//        for (row in 0..8) {
+//            frog += frog[row].map { it.raiseRisk() }.toMutableList()
+//        }
+
         return input.size
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput0 = readInput("Day15_test0")
     val testInput = readInput("Day15_test")
-    check(part0(testInput0) == 20)
-    check(part1(testInput) == 40)
-//    check(part2(testInput) == 5)
+//    check(part0(testInput0) == 20)
+//    check(part1(testInput) == 40)
+    check(part2(testInput) == 5)
 
     val input = readInput("Day15")
-    println("part1 ${part1(input)}")
+//    println("part1 ${part1(input)}")
 //    println("part2 ${part2(input)}")
 }
 
@@ -101,6 +152,10 @@ data class Node(
     val location: Pair<Int, Int>,
     val distance:Int = Int.MAX_VALUE,
 )
+
+fun Int.raiseRisk(): Int {
+    return if (this + 1 < 10) this + 1 else 1
+}
 
 fun getDistance(location: Pair<Int, Int>, neighbor: Pair<Int, Int>, cave: List<List<Int>>): Int {
     return cave[neighbor.first][neighbor.second]  // Chiton risk is equivalent to distance in adapting Dijkstra's algorithm to this problem space
