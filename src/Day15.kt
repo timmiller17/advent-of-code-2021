@@ -111,21 +111,16 @@ fun main() {
         }
         distances[0][0] = 0
 
-        val unvisitedSet = mutableSetOf<Node>()
+        val unvisitedSet = TreeSet<Node2>()
 
         for (i in cave.indices) {
             for (j in cave[0].indices) {
-                unvisitedSet += if (i == 0 && j == 0) {
-                    Node(Pair(i,j), 0)
-                } else {
-                    Node(Pair(i,j))
-                }
+                unvisitedSet += Node2(Pair(i, j), distances[i][j])
             }
         }
 
         while (unvisitedSet.isNotEmpty()) {
-            val currentNode = unvisitedSet.minByOrNull { it.distance }!!  // this is just progressing top down through the graph, maybe need to consider all points in chart not visited yet and then take min of those
-            unvisitedSet.remove(currentNode)
+            val currentNode = unvisitedSet.pollFirst()!!
 
             val location = currentNode.location
 
@@ -136,8 +131,10 @@ fun main() {
                 val distance = distances[location.first][location.second] + getDistance(location, neighbor, cave)
 
                 if (distance < distances[neighbor.first][neighbor.second]) {
+                    unvisitedSet.remove(Node2(Pair(neighbor.first, neighbor.second), distances[neighbor.first][neighbor.second]))
                     distances[neighbor.first][neighbor.second] = distance
                     previousNodes[neighbor.first][neighbor.second] = location
+                    unvisitedSet += Node2(Pair(neighbor.first, neighbor.second), distances[neighbor.first][neighbor.second])
                 }
             }
         }
@@ -157,8 +154,8 @@ fun main() {
     val testInput = readInput("Day15_test")
 //    check(part0(testInput0) == 20)
 //    check(part1(testInput) == 40)
-    check(part2(testInput) == 315)
-    println("part2 test succeeded")
+//    check(part2(testInput) == 315)
+//    println("part2 test succeeded")
 
     val input = readInput("Day15")
 //    println("part1 ${part1(input)}")
@@ -169,6 +166,20 @@ data class Node(
     val location: Pair<Int, Int>,
     val distance:Int = Int.MAX_VALUE,
 )
+
+class Node2(val location: Pair<Int, Int>, val distance: Int): Comparable<Node2> {
+    // note: needed to use TreeSet. Since it uses this for compare, we need to add in the indices to the compare
+    // otherwise nodes of equal distance are considered equal and overwrite the existing items in the set
+    override fun compareTo(other: Node2): Int {
+        if (this.distance != other.distance) {
+            return this.distance - other.distance
+        } else if (this.location.first != other.location.first) {
+            return this.location.first - other.location.first
+        } else {
+            return this.location.second - other.location.second
+        }
+    }
+}
 
 fun Int.raiseRisk(): Int {
     return if (this + 1 < 10) this + 1 else 1
