@@ -104,10 +104,12 @@ fun main() {
 
         val distances = mutableListOf<MutableList<Int>>()
         val previousNodes = mutableListOf<MutableList<Pair<Int, Int>?>>()
+        val visited = mutableListOf<MutableList<Int>>()
 
         for (list in cave) {
             distances += mutableListOf(list.map { Int.MAX_VALUE }.toMutableList())
             previousNodes += mutableListOf(list.map { null }.toMutableList())
+            visited += mutableListOf(list.map { 0 }.toMutableList())
         }
         distances[0][0] = 0
 
@@ -123,9 +125,10 @@ fun main() {
             val currentNode = unvisitedSet.pollFirst()!!
 
             val location = currentNode.location
+            visited[location.first][location.second] = 1
 
             val neighbors = getNeighbors(location, cave.size, cave[0].size)  // get potential neighbors
-            neighbors.removeAll { unvisitedSet.map { node -> node.location }.contains(it).not() } // remove neighbors already visited
+            neighbors.removeAll { visited[it.first][it.second] == 1 } // remove neighbors already visited
 
             for (neighbor in neighbors) {
                 val distance = distances[location.first][location.second] + getDistance(location, neighbor, cave)
@@ -154,12 +157,14 @@ fun main() {
     val testInput = readInput("Day15_test")
 //    check(part0(testInput0) == 20)
 //    check(part1(testInput) == 40)
-//    check(part2(testInput) == 315)
-//    println("part2 test succeeded")
+    check(part2(testInput) == 315)
+    println("part2 test succeeded")
 
     val input = readInput("Day15")
 //    println("part1 ${part1(input)}")
+    println(System.currentTimeMillis())
     println("part2 ${part2(input)}")
+    println(System.currentTimeMillis())
 }
 
 data class Node(
@@ -217,11 +222,11 @@ fun Pair<Int, Int>.hasWestNeighbor(): Boolean {
 }
 
 fun Pair<Int, Int>.hasSouthNeighbor(caveRows: Int): Boolean {
-    return this.first < caveRows
+    return this.first < caveRows - 1
 }
 
 fun Pair<Int, Int>.hasEastNeighbor(caveColumns: Int): Boolean {
-    return this.second < caveColumns
+    return this.second < caveColumns - 1
 }
 
 
