@@ -21,14 +21,14 @@ fun main() {
     val testInput1 = readInput("Day16_test1")
     val testInput2 = readInput("Day16_test2")
     val testInput = readInput("Day16_test")
-    check(part1(testInput1) == 9)
-    check(part1(testInput2) == 14) // might double-check this is correct while developing
+//    check(part1(testInput1) == 9)
+    check(part1(testInput2) == 14)
 //    check(part1(testInput) == 7)
 //    check(part2(testInput) == 5)
 
     val input = readInput("Day16")
-    println("part1 ${part1(input)}")
-    println("part2 ${part2(input)}")
+//    println("part1 ${part1(input)}")
+//    println("part2 ${part2(input)}")
 }
 
 fun String.padBinaryStringToFourDigits(): String {
@@ -40,7 +40,7 @@ fun String.padBinaryStringToFourDigits(): String {
 }
 
 fun process(versionSum: Int = 0, packet: String): Pair<Int, String> {
-    if (packet.length < 3) {
+    if (packet.length < 12) { // minimum packet length is 11, which corresponds to a literal value packet that is 15 or less so only needs 4 bits
         return Pair(versionSum, "")
     }
     val version = packet.take(3).toInt(2)
@@ -68,9 +68,11 @@ fun process(versionSum: Int = 0, packet: String): Pair<Int, String> {
         } else {
             numberOfSubpackets = newPacket.take(11).toInt(2)
             newPacket = newPacket.drop(11)
+            return process(versionSum + version, newPacket)
         }
         // next do work to add versions if it's lengthTypeId == 1, keep processing while we have additional subpackets
         // this will test Day16_test2.txt input
+        // now know that somehow I need to figure out a better check for no packets remaining when given a numberOfSubpackets type situation
 
     }
     return Pair(version, "")
