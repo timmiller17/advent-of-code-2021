@@ -20,11 +20,13 @@ fun main() {
     val testInput2 = readInput("Day16_test2")
     val testInput3 = readInput("Day16_test3")
     val testInput4 = readInput("Day16_test4")
+    val testInput5 = readInput("Day16_test5")
     val testInput = readInput("Day16_test")
     check(part1(testInput1) == 9)
     check(part1(testInput2) == 14)
     check(part1(testInput3) == 16)
     check(part1(testInput4) == 12)
+    check(part1(testInput5) == 23)
 //    check(part1(testInput) == 7)
 //    check(part2(testInput) == 5)
 
@@ -41,8 +43,9 @@ fun String.padBinaryStringToFourDigits(): String {
     return this
 }
 
-fun process(versionSum: Int = 0, packet: String, numberOfSubpackets: Int = 0): Pair<Int, String> {
+fun process(versionSum: Int = 0, packet: String, numberOfSubpackets: Int = 0, numberOfBits: Int = 0): Pair<Int, String> {
     val remainingNumberOfSubpackets = numberOfSubpackets - 1
+    val remainingNumberOfBits = numberOfBits
     if (packet.length < 11) { // minimum packet length is 11, which corresponds to a literal value packet that is 15 or less so only needs 4 bits
         return Pair(versionSum, "")
     }
@@ -69,17 +72,23 @@ fun process(versionSum: Int = 0, packet: String, numberOfSubpackets: Int = 0): P
                 val firstNewPacket = newPacket.drop(15).take(lengthInBits)
                 val remainingPackets = newPacket.drop(15 + lengthInBits)
                 // need to add both version from firstNewPacket and then whatever is in the additional subpackets as well
-                return process(versionSum + version + process(0, firstNewPacket).first, remainingPackets, remainingNumberOfSubpackets)
+                return process(versionSum + version + process(0, firstNewPacket).first,
+                    packet = remainingPackets,
+                    numberOfSubpackets = remainingNumberOfSubpackets)
+            } else if (remainingNumberOfBits > 0) {
+                val firstNewPacket = newPacket.drop(15).take(lengthInBits)
+                val remainingPackets = newPacket.drop(15 + lengthInBits)
+                return process(versionSum + version + process(0, firstNewPacket).first,
+                    packet = remainingPackets,
+                    numberOfBits = newPacket.length - lengthInBits)
             } else {
                 newPacket = newPacket.drop(15).take(lengthInBits)
-                return process(versionSum + version, newPacket)
+                return process(versionSum + version, packet = newPacket, numberOfBits = lengthInBits)
             }
-            return process(versionSum + version, newPacket)
-
         } else {
             numberOfSubpackets = newPacket.take(11).toInt(2)
             newPacket = newPacket.drop(11)
-            return process(versionSum + version, newPacket, numberOfSubpackets)
+            return process(versionSum + version, packet = newPacket, numberOfSubpackets = numberOfSubpackets)
         }
         // next do work to add versions if it's lengthTypeId == 1, keep processing while we have additional subpackets
         // this will test Day16_test2.txt input
