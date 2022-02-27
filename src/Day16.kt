@@ -14,23 +14,33 @@ fun main() {
             return parseLiteralValue(bitList)
         } else {
             val lengthTypeId = bitList.pop()
+            val operatorResults = mutableListOf<Long>()
 
             if (lengthTypeId == '0') {
                 // subpackets defined by number of bits
                 val subpacketBits = popBits(15, bitList).toInt(2)
                 val expectedSizeAfterSubpacketsProcessed = bitList.size - subpacketBits
                 while (bitList.size > expectedSizeAfterSubpacketsProcessed) {
-                    process(bitList)
+                    operatorResults.add(process(bitList))
                 }
             } else {
                 // subpackets defined by number of subpackets
                 val numberOfSubpackets = popBits(11, bitList).toInt(2)
                 repeat(numberOfSubpackets) {
-                    process(bitList)
+                    operatorResults.add(process(bitList))
                 }
             }
+            return when (typeId) {
+                0 -> operatorResults.sum()
+                1 -> operatorResults.reduce { acc, i ->  acc * i }
+                2 -> operatorResults.minOf { it }
+                3 -> operatorResults.maxOf { it }
+                5 -> if (operatorResults[0] > operatorResults[1]) 1 else 0
+                6 -> if (operatorResults[0] < operatorResults[1]) 1 else 0
+                7 -> if (operatorResults[0] == operatorResults[1]) 1 else 0
+                else -> -1
+            }
         }
-        return 0L
     }
 
     fun part1(input: List<String>): Long {
@@ -76,8 +86,6 @@ fun main() {
     val testInput4 = readInput("Day16_test4")
     val testInput5 = readInput("Day16_test5")
     val testInput6 = readInput("Day16_test6")
-    val testInput7 = readInput("Day16_test7")
-    val testInput = readInput("Day16_test")
     check(part1(testInput1) == 9L)
     check(part1(testInput2) == 14L)
     check(part1(testInput3) == 16L)
@@ -85,11 +93,26 @@ fun main() {
     check(part1(testInput5) == 23L)
     check(part1(testInput6) == 31L)
 
-//    check(part2(testInput7) == 3L)
+    val testInput7 = readInput("Day16_test7")
+    val testInput8 = readInput("Day16_test8")
+    val testInput9 = readInput("Day16_test9")
+    val testInput10 = readInput("Day16_test10")
+    val testInput11 = readInput("Day16_test11")
+    val testInput12 = readInput("Day16_test12")
+    val testInput13 = readInput("Day16_test13")
+    val testInput14 = readInput("Day16_test14")
+    check(part2(testInput7) == 3L)
+    check(part2(testInput8) == 54L)
+    check(part2(testInput9) == 7L)
+    check(part2(testInput10) == 9L)
+    check(part2(testInput11) == 1L)
+    check(part2(testInput12) == 0L)
+    check(part2(testInput13) == 0L)
+    check(part2(testInput14) == 1L)
 
     val input = readInput("Day16")
     println("part1 ${part1(input)}")
-//    println("part2 ${part2(input)}")
+    println("part2 ${part2(input)}")
 }
 
 
