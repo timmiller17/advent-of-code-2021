@@ -1,5 +1,5 @@
 fun main() {
-    fun part1(input: List<String>): Int {
+    fun part1(input: List<String>): Long {
         val code = input[0]
 
         val binaryCodes = code.map { Integer.toBinaryString(it.toString().toInt(16)).padBinaryStringToFourDigits() }
@@ -23,17 +23,15 @@ fun main() {
     val testInput5 = readInput("Day16_test5")
     val testInput6 = readInput("Day16_test6")
     val testInput = readInput("Day16_test")
-    check(part1(testInput1) == 9)
-    check(part1(testInput2) == 14)
-    check(part1(testInput3) == 16)
-    check(part1(testInput4) == 12)
-    check(part1(testInput5) == 23)
-    check(part1(testInput6) == 31)
-//    check(part1(testInput) == 7)
-//    check(part2(testInput) == 5)
+    check(part1(testInput1) == 9L)
+    check(part1(testInput2) == 14L)
+    check(part1(testInput3) == 16L)
+    check(part1(testInput4) == 12L)
+    check(part1(testInput5) == 23L)
+    check(part1(testInput6) == 31L)
 
     val input = readInput("Day16")
-//    println("part1 ${part1(input)}")
+    println("part1 ${part1(input)}")
 //    println("part2 ${part2(input)}")
 }
 
@@ -45,17 +43,17 @@ fun String.padBinaryStringToFourDigits(): String {
     return this
 }
 
-fun process(versionSum: Int = 0, packet: String, numberOfSubpackets: Int = 0, numberOfBits: Int = 0): Pair<Int, String> {
+fun process(versionSum: Long = 0, packet: String, numberOfSubpackets: Int = 0, numberOfBits: Int = 0): Pair<Long, String> {
     val remainingNumberOfSubpackets = numberOfSubpackets - 1
     val remainingNumberOfBits = numberOfBits
     if (packet.length < 11) { // minimum packet length is 11, which corresponds to a literal value packet that is 15 or less so only needs 4 bits
         return Pair(versionSum, "")
     }
-    val version = packet.take(3).toInt(2)
+    val version = packet.take(3).toLong(2)
     var newPacket = packet.drop(3)
     val typeId = newPacket.take(3).toInt(2)
     newPacket = newPacket.drop(3)
-    var intValue = 0
+    var intValue = 0L
     var lengthTypeId: String
     var lengthInBits: Int
     var numberOfSubpackets: Int
@@ -100,7 +98,7 @@ fun process(versionSum: Int = 0, packet: String, numberOfSubpackets: Int = 0, nu
     return Pair(version, "")
 }
 
-fun String.literalValue(): Pair<Int, String> {
+fun String.literalValue(): Pair<Long, String> {
     var newPacket = this
     var value = ""
 
@@ -109,5 +107,5 @@ fun String.literalValue(): Pair<Int, String> {
         newPacket = newPacket.drop(5)
     }
     value += newPacket.slice(1..4)
-    return Pair(value.toInt(2), newPacket.drop(5))
+    return Pair(value.toLong(2), newPacket.drop(5))
 }
